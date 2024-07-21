@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 )
 
 type Todo struct {
@@ -82,5 +83,12 @@ func main() {
 	r.HandleFunc("/todos", createTodo).Methods("POST")
 	r.HandleFunc("/todos/{id}", updateTodo).Methods("PUT")
 	r.HandleFunc("/todos/{id}", deleteTodo).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":8080", r))
+
+	// CORS configuration
+	corsHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	corsOrigins := handlers.AllowedOrigins([]string{"*"})
+	corsMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+
+	// Apply CORS middleware
+	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(corsHeaders, corsOrigins, corsMethods)(r)))
 }
